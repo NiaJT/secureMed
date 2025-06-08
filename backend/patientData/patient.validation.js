@@ -38,6 +38,7 @@ export const patientValidationSchema = yup.object({
     name: yup.string().required("Emergency contact name is required"),
     phone: yup.string().required("Emergency contact phone is required"),
   }),
-  doctor: yup.string().required("Doctor ID is required"),
+  doctor: yup.string().nullable().notRequired(),
+
   reports: yup.array().of(reportSchema).default([]),
 });

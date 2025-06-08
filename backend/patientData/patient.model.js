@@ -19,7 +19,7 @@ const patientSchema = new mongoose.Schema({
   doctor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true, // every patient must have a doctor
+    default: null,
   },
   reports: [
     {

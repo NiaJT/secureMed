@@ -41,13 +41,23 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ["user", "respondent", "admin"],
+      enum: ["patient", "doctor", "admin"],
     },
     address: {
       type: String,
       required: true,
       trim: true,
       maxlength: 255,
+    },
+
+    // Add doctor-specific fields here as optional fields
+    licenseNumber: {
+      type: String,
+      default: null,
+    },
+    specialization: {
+      type: String,
+      default: null,
     },
   },
   { timestamps: true }
