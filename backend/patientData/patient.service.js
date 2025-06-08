@@ -26,3 +26,17 @@ export const addPatientData = async (req, res) => {
     return res.status(400).send({ message: "Invalid Operation" });
   }
 };
+export const getPatientDetails = async (req, res) => {
+  try {
+    const userId = req.loggedInUser;
+    const patientDetails = await PatientTable.findOne({ user: userId });
+    if (!patientDetails) {
+      res.status(400).send({ message: "User has no medical Records" });
+    }
+    return res.status(200).send({ message: "Success", patientDetails });
+  } catch (error) {
+    return res
+      .status(400)
+      .send({ message: "Couldn't get patient medical details" });
+  }
+};
