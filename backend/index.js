@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json());
 connectDB();
 app.use("/user", UserController);
-app.use("/report", PatientController);
+app.use("/patient-data", PatientController);
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log("App is listening at port", PORT);
