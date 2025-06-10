@@ -5,8 +5,38 @@ import { Button } from "../ui/button";
 import { Formik } from "formik";
 import { loginCredentialSchema } from "@/Schema/userValidationSchema";
 import { Input } from "../ui/input";
+import { useMutation } from "@tanstack/react-query";
+import { axiosInstance } from "@/lib/axios.instance";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { IError } from "@/interface/error.interface";
+interface ILoginForm {
+  email: string;
+  password: string;
+}
 
 const LoginForm = () => {
+  const router = useRouter();
+  const { isPending, mutate } = useMutation({
+    mutationKey: ["get-login-data"],
+    mutationFn: async (values: ILoginForm) => {
+      return await axiosInstance.post("/user/login", values);
+    },
+    onSuccess: (res) => {
+      console.log(res);
+      const accessToken = res?.data?.accessToken;
+      const firstName = res?.data?.userDetails?.firstName;
+      const role = res?.data?.userDetails?.role;
+      window.localStorage.setItem("accessToken", accessToken);
+      window.localStorage.setItem("firstName", firstName);
+      window.localStorage.setItem("role", role);
+      toast.success(`Welcome ${firstName}!`);
+      router.push("/");
+    },
+    onError: (error: IError) => {
+      toast.error(error.response.data.message);
+    },
+  });
   return (
     <div className="w-full h-screen flex bg-gradient-to-tr from-amber-300 via-amber-400 to-amber-500 text-gray-900">
       {/* Left panel with branding info */}
@@ -30,7 +60,7 @@ const LoginForm = () => {
           initialValues={{ email: "", password: "" }}
           validationSchema={loginCredentialSchema}
           onSubmit={(values) => {
-            console.log("submitted", values);
+            mutate(values);
           }}
         >
           {({ handleSubmit, handleChange, values, errors, touched }) => (
