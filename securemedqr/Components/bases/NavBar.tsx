@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Link from "next/link";
 import React, { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const navLinks = [
   { name: "Home", link: "/", icon: <Home className="w-5 h-5" /> },
@@ -26,6 +27,7 @@ const navLinks = [
 ];
 
 const NavBar = () => {
+  const router=useRouter();
   const [firstName, setFirstName] = useState<string>("");
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -57,7 +59,8 @@ const NavBar = () => {
   }, [isProfileOpen]);
 
   const handleLogout = () => {
-    console.log("Logging out...");
+   window.localStorage.clear();
+   router.replace("/login");
     setIsProfileOpen(false);
     setIsMobileOpen(false);
   };
@@ -109,9 +112,9 @@ const NavBar = () => {
               aria-label="User menu"
             >
               <div className="hidden sm:block text-right">
-                <Avatar className="border-2 border-white group-hover:border-blue-300 transition-colors">
+                <Avatar className="border-2 border-white group-hover:border-purple-300 transition-colors">
                   <AvatarImage src="/default-avatar.png" alt={firstName} />
-                  <AvatarFallback className="bg-blue-500">
+                  <AvatarFallback className="bg-purple-500">
                     {firstName ? (
                       firstName.charAt(0).toUpperCase()
                     ) : (
