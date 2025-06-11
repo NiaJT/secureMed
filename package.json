@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@tanstack/react-query": "^5.80.6",
     "formik": "^2.4.6"
   }
 }
