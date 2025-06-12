@@ -19,7 +19,7 @@ const navLinks = [
   { name: "Home", link: "/", icon: <Home className="w-5 h-5" /> },
   { name: "About Us", link: "/about", icon: <Info className="w-5 h-5" /> },
   {
-    name: "Add Report",
+    name: "Add Medical Report",
     link: "/add-report",
     icon: <FilePlus className="w-5 h-5" />,
   },
@@ -27,7 +27,7 @@ const navLinks = [
 ];
 
 const NavBar = () => {
-  const router=useRouter();
+  const router = useRouter();
   const [firstName, setFirstName] = useState<string>("");
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -59,8 +59,8 @@ const NavBar = () => {
   }, [isProfileOpen]);
 
   const handleLogout = () => {
-   window.localStorage.clear();
-   router.replace("/login");
+    window.localStorage.clear();
+    router.replace("/login");
     setIsProfileOpen(false);
     setIsMobileOpen(false);
   };
