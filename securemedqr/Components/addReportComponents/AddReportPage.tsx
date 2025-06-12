@@ -2,9 +2,11 @@
 
 import { patientValidationSchema } from "@/Schema/patientValidationSchema";
 import { Formik, Field, FieldArray } from "formik";
+import { FilePlus } from "lucide-react";
 import React from "react";
+import { Button } from "../ui/button";
 
-const AddReport = () => {
+const AddReportPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 m-4 rounded-3xl">
       <div className="max-w-4xl mx-auto">
@@ -198,46 +200,13 @@ const AddReport = () => {
 
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Report File URL
+                                Select a File
                               </label>
                               <Field
+                                type="file"
                                 name={`reports.${index}.reportFileUrl`}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                               />
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Access Level
-                                </label>
-                                <Field
-                                  as="select"
-                                  name={`reports.${index}.accessLevel`}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                >
-                                  <option value="private">Private</option>
-                                  <option value="doctor-patient">
-                                    Doctor-Patient
-                                  </option>
-                                  <option value="admin">Admin</option>
-                                </Field>
-                              </div>
-
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Verification Status
-                                </label>
-                                <Field
-                                  as="select"
-                                  name={`reports.${index}.verificationStatus`}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                >
-                                  <option value="pending">Pending</option>
-                                  <option value="verified">Verified</option>
-                                  <option value="rejected">Rejected</option>
-                                </Field>
-                              </div>
                             </div>
                           </div>
                         </div>
@@ -257,20 +226,9 @@ const AddReport = () => {
                             verificationRemarks: "",
                           })
                         }
-                        className="flex items-center text-blue-600 hover:text-blue-800 font-medium"
+                        className="flex cursor-pointer items-center text-blue-600 hover:text-blue-800 font-medium"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5 mr-1"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
+                        <FilePlus></FilePlus>
                         Add Another Report
                       </button>
                     </div>
@@ -282,7 +240,7 @@ const AddReport = () => {
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition duration-300"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition duration-300 cursor-pointer"
                 >
                   Submit Report
                 </button>
@@ -291,7 +249,8 @@ const AddReport = () => {
           )}
         </Formik>
       </div>
+      <div className="bg-destructive text-white p-4">Should be Red</div>
     </div>
   );
 };
-export default AddReport;
+export default AddReportPage;
