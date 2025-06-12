@@ -1,5 +1,6 @@
 "use client";
-import { patientValidationSchema } from "@/Schema/userValidationSchema";
+
+import { patientValidationSchema } from "@/Schema/patientValidationSchema";
 import { Formik, Field, FieldArray } from "formik";
 import React from "react";
 
@@ -41,7 +42,7 @@ const AddReport = () => {
             console.log(values);
           }}
         >
-          {({ values, errors, touched, handleChange, handleSubmit }) => (
+          {({ values, errors, touched, handleSubmit }) => (
             <form
               onSubmit={handleSubmit}
               className="bg-white shadow rounded-lg p-6 "
