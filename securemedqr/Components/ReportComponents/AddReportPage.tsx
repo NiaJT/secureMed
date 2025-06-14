@@ -10,6 +10,7 @@ import { axiosInstance } from "@/lib/axios.instance";
 import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
 import { IError } from "@/interface/error.interface";
+import { Patient } from "@/interface/patientdata.interface";
 dotenv.config();
 const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
@@ -18,7 +19,6 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", uploadPreset as string);
-  console.log(uploadPreset);
 
   const response = await axios.post(
     `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
@@ -31,7 +31,7 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
 const AddReportPage = () => {
   const { mutate, isPending } = useMutation({
     mutationKey: ["add-patient-data"],
-    mutationFn: async (values) => {
+    mutationFn: async (values: Patient) => {
       return await axiosInstance.post("/patient-data/add", values);
     },
     onSuccess: (res) => {
@@ -41,6 +41,14 @@ const AddReportPage = () => {
       toast.success(error.response.data.message);
     },
   });
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <p className="ml-4 text-gray-600">Updating patient data...</p>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 m-4 rounded-3xl">
       <div className="max-w-4xl mx-auto">
@@ -95,7 +103,10 @@ const AddReportPage = () => {
 
               const finalPayload = {
                 ...values,
-                reports: reportsWithUrls,
+                reports: reportsWithUrls.filter(
+                  (report): report is NonNullable<typeof report> =>
+                    report !== undefined
+                ),
               };
 
               console.log("Final Payload:", finalPayload);

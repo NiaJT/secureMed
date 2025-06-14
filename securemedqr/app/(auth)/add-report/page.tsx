@@ -1,4 +1,4 @@
-import AddReportPage from "@/Components/addReportComponents/AddReportPage";
+import AddReportPage from "@/Components/ReportComponents/AddReportPage";
 import React from "react";
 
 const page = () => {
