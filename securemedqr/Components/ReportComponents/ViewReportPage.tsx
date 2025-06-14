@@ -15,12 +15,13 @@ import { format } from "date-fns";
 import { axiosInstance } from "@/lib/axios.instance";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const ViewReportPage = () => {
   const [patientData, setPatientData] = useState<Patient | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const router = useRouter();
   useEffect(() => {
     const fetchPatientData = async () => {
       try {
@@ -139,7 +140,7 @@ const ViewReportPage = () => {
               <div className="mt-4 md:mt-0">
                 <div className="flex items-center text-red-400">
                   <Phone className="h-5 w-5 mr-2" />
-                  <div >
+                  <div>
                     <div className="text-lg font-semibold ">
                       Emergency Contact
                     </div>
@@ -347,6 +348,9 @@ const ViewReportPage = () => {
         <button
           className="flex justify-center items-center bg-purple-500 p-3 rounded-xl text-white font-semibold cursor-pointer "
           type="button"
+          onClick={() => {
+            router.push("/medical-data/edit");
+          }}
         >
           Edit Report
         </button>
