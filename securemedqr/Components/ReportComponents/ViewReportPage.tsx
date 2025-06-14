@@ -4,18 +4,17 @@ import React, { useState, useEffect } from "react";
 import { Patient } from "@/interface/patientdata.interface";
 import {
   FileText,
-  Download,
   ArrowLeft,
   User,
   Phone,
   HeartPulse,
   AlertTriangle,
+  View,
 } from "lucide-react";
 import { format } from "date-fns";
 import { axiosInstance } from "@/lib/axios.instance";
 import toast from "react-hot-toast";
 import Link from "next/link";
-import { patientValidationSchema } from "@/Schema/patientValidationSchema";
 
 const ViewReportPage = () => {
   const [patientData, setPatientData] = useState<Patient | null>(null);
@@ -37,7 +36,7 @@ const ViewReportPage = () => {
           },
         });
 
-           setPatientData(response.data.patientDetails);
+        setPatientData(response.data.patientDetails);
       } catch (err) {
         console.error("Error fetching patient data:", err);
         setError("Failed to load patient data. Please try again.");
@@ -130,8 +129,8 @@ const ViewReportPage = () => {
                 <div className="flex items-center mt-2">
                   <div className="flex items-center">
                     <User className="h-4 w-4 mr-1" />
-                    {patientData.gender?.charAt(0).toUpperCase() +
-                      patientData.gender?.slice(1) || "Not specified"}
+                    {patientData.gender[0].toUpperCase() +
+                      patientData.gender.slice(1) || "Not specified"}
                   </div>
                   <span className="mx-2">•</span>
                   <div>{patientData.age || "Unknown"} years</div>
@@ -306,8 +305,8 @@ const ViewReportPage = () => {
                             download
                             className="flex items-center text-blue-600 hover:text-blue-800 font-medium"
                           >
-                            <Download className="h-4 w-4 mr-1" />
-                            Download
+                            <View className="h-4 w-4 mr-1" />
+                            View{" "}
                           </a>
                         </div>
                       </div>

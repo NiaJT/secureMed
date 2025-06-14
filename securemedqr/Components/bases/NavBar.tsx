@@ -8,6 +8,7 @@ import {
   X,
   User,
   LogOut,
+  View,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Link from "next/link";
@@ -24,6 +25,11 @@ const navLinks = [
     icon: <FilePlus className="w-5 h-5" />,
   },
   { name: "Contact Us", link: "/contact", icon: <Phone className="w-5 h-5" /> },
+  {
+    name: "My Report",
+    link: "/medical-data",
+    icon: <View className="w-5 h-5" />,
+  },
 ];
 
 const NavBar = () => {
