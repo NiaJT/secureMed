@@ -90,7 +90,7 @@ const ViewReportPage = () => {
 
   if (!patientData) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 m-4 rounded-3xl">
         <User className="h-12 w-12 text-gray-400 mb-4" />
         <p className="text-gray-600 text-lg text-center mb-4">
           No patient data found
@@ -108,7 +108,7 @@ const ViewReportPage = () => {
   const reports = safeArray(patientData.reports);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 m-4 rounded-3xl">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <Link
@@ -137,10 +137,12 @@ const ViewReportPage = () => {
                 </div>
               </div>
               <div className="mt-4 md:mt-0">
-                <div className="flex items-center">
+                <div className="flex items-center text-red-400">
                   <Phone className="h-5 w-5 mr-2" />
-                  <div>
-                    <div className="text-sm">Emergency Contact</div>
+                  <div >
+                    <div className="text-lg font-semibold ">
+                      Emergency Contact
+                    </div>
                     <div className="font-semibold">
                       {patientData.emergencyContact?.name || "Not provided"}
                     </div>
@@ -340,6 +342,14 @@ const ViewReportPage = () => {
               )
             : "N/A"}
         </div>
+      </div>
+      <div className="flex justify-end">
+        <button
+          className="flex justify-center items-center bg-purple-500 p-3 rounded-xl text-white font-semibold cursor-pointer "
+          type="button"
+        >
+          Edit Report
+        </button>
       </div>
     </div>
   );
