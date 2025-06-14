@@ -9,9 +9,10 @@ const reportSchema = yup.object({
     .required("Report title is required"),
   reportDescription: yup.string().trim().nullable(),
   reportFileUrl: yup
-    .string()
-    .url("Invalid file URL")
-    .required("Report file URL is required"),
+    .mixed()
+    .required("Report file is required")
+    .test("is-file", "Invalid file", (value) => value instanceof File),
+
   uploadedAt: yup.date().default(() => new Date()),
   accessLevel: yup
     .string()

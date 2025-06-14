@@ -4,7 +4,20 @@ import { patientValidationSchema } from "@/Schema/patientValidationSchema";
 import { Formik, Field, FieldArray } from "formik";
 import { FilePlus } from "lucide-react";
 import React from "react";
-import { Button } from "../ui/button";
+import axios from "axios";
+
+export const uploadToCloudinary = async (file: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "your_upload_preset");
+
+  const response = await axios.post(
+    "https://api.cloudinary.com/v1_1/your_cloud_name/upload",
+    formData
+  );
+
+  return response.data.secure_url;
+};
 
 const AddReportPage = () => {
   return (
@@ -30,7 +43,7 @@ const AddReportPage = () => {
               {
                 reportTitle: "",
                 reportDescription: "",
-                reportFileUrl: "",
+                reportFileUrl: null,
                 uploadedAt: new Date(),
                 accessLevel: "doctor-patient",
                 verificationStatus: "pending",
@@ -40,16 +53,39 @@ const AddReportPage = () => {
             ],
           }}
           validationSchema={patientValidationSchema}
-          onSubmit={(values) => {
-            console.log(values);
+          onSubmit={async (values) => {
+            try {
+              const reportsWithUrls = await Promise.all(
+                values.reports.map(async (report) => {
+                  const uploadedUrl = await uploadToCloudinary(
+                    report.reportFileUrl
+                  );
+                  return {
+                    ...report,
+                    reportFileUrl: uploadedUrl,
+                  };
+                })
+              );
+
+              const finalPayload = {
+                ...values,
+                reports: reportsWithUrls,
+              };
+
+              console.log("Final Payload:", finalPayload);
+
+              // Submit finalPayload to your backend here
+            } catch (err) {
+              console.error("File upload failed:", err);
+            }
           }}
         >
-          {({ values, errors, touched, handleSubmit }) => (
+          {({ values, errors, touched, handleSubmit, setFieldValue }) => (
             <form
               onSubmit={handleSubmit}
-              className="bg-white shadow rounded-lg p-6 "
+              className="bg-white shadow rounded-lg p-6"
             >
-              {/* Personal Information Section */}
+              {/* Personal Info */}
               <div className="mb-8 rounded-3xl">
                 <h2 className="text-xl font-semibold text-gray-700 mb-4 pb-2 border-b">
                   Personal Information
@@ -111,7 +147,7 @@ const AddReportPage = () => {
                 </div>
               </div>
 
-              {/* Emergency Contact Section */}
+              {/* Emergency Contact */}
               <div className="mb-8">
                 <h2 className="text-xl font-semibold text-gray-700 mb-4 pb-2 border-b">
                   Emergency Contact
@@ -161,7 +197,7 @@ const AddReportPage = () => {
                 </div>
               </div>
 
-              {/* Reports Section */}
+              {/* Reports */}
               <div className="mb-8">
                 <h2 className="text-xl font-semibold text-gray-700 mb-4 pb-2 border-b">
                   Medical Reports
@@ -169,7 +205,7 @@ const AddReportPage = () => {
                 <FieldArray name="reports">
                   {({ push, remove }) => (
                     <div>
-                      {values.reports?.map((report, index) => (
+                      {values.reports.map((report, index) => (
                         <div
                           key={index}
                           className="border border-gray-200 rounded-lg p-5 mb-6 bg-gray-50"
@@ -178,13 +214,15 @@ const AddReportPage = () => {
                             <h3 className="font-medium text-gray-700">
                               Report #{index + 1}
                             </h3>
-                            <button
-                              type="button"
-                              onClick={() => remove(index)}
-                              className="text-red-600 hover:text-red-800 text-sm font-medium"
-                            >
-                              Remove Report
-                            </button>
+                            {values.reports.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => remove(index)}
+                                className="text-red-600 hover:text-red-800 text-sm font-medium"
+                              >
+                                Remove Report
+                              </button>
+                            )}
                           </div>
 
                           <div className="grid grid-cols-1 gap-4">
@@ -202,9 +240,17 @@ const AddReportPage = () => {
                               <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Select a File
                               </label>
-                              <Field
+                              <input
                                 type="file"
-                                name={`reports.${index}.reportFileUrl`}
+                                onChange={(event) => {
+                                  const file = event.currentTarget.files?.[0];
+                                  if (file) {
+                                    setFieldValue(
+                                      `reports.${index}.reportFileUrl`,
+                                      file
+                                    );
+                                  }
+                                }}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                               />
                             </div>
@@ -218,7 +264,7 @@ const AddReportPage = () => {
                           push({
                             reportTitle: "",
                             reportDescription: "",
-                            reportFileUrl: "",
+                            reportFileUrl: null,
                             uploadedAt: new Date(),
                             accessLevel: "doctor-patient",
                             verificationStatus: "pending",
@@ -228,7 +274,7 @@ const AddReportPage = () => {
                         }
                         className="flex cursor-pointer items-center text-blue-600 hover:text-blue-800 font-medium"
                       >
-                        <FilePlus></FilePlus>
+                        <FilePlus className="mr-1" />
                         Add Another Report
                       </button>
                     </div>
@@ -236,7 +282,7 @@ const AddReportPage = () => {
                 </FieldArray>
               </div>
 
-              {/* Submit Button */}
+              {/* Submit */}
               <div className="flex justify-end">
                 <button
                   type="submit"
@@ -249,8 +295,8 @@ const AddReportPage = () => {
           )}
         </Formik>
       </div>
-      <div className="bg-destructive text-white p-4">Should be Red</div>
     </div>
   );
 };
+
 export default AddReportPage;
