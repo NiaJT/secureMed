@@ -5,14 +5,23 @@ import { Formik, Field, FieldArray } from "formik";
 import { FilePlus } from "lucide-react";
 import React from "react";
 import axios from "axios";
+import dotenv from "dotenv";
+import { axiosInstance } from "@/lib/axios.instance";
+import toast from "react-hot-toast";
+import { useMutation } from "@tanstack/react-query";
+import { IError } from "@/interface/error.interface";
+dotenv.config();
+const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
 export const uploadToCloudinary = async (file: File): Promise<string> => {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", "your_upload_preset");
+  formData.append("upload_preset", uploadPreset as string);
+  console.log(uploadPreset);
 
   const response = await axios.post(
-    "https://api.cloudinary.com/v1_1/your_cloud_name/upload",
+    `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
     formData
   );
 
@@ -20,6 +29,18 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
 };
 
 const AddReportPage = () => {
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["add-patient-data"],
+    mutationFn: async (values) => {
+      return await axiosInstance.post("/patient-data/add", values);
+    },
+    onSuccess: (res) => {
+      toast.success(res.data.message);
+    },
+    onError: (error: IError) => {
+      toast.success(error.response.data.message);
+    },
+  });
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 m-4 rounded-3xl">
       <div className="max-w-4xl mx-auto">
@@ -57,9 +78,14 @@ const AddReportPage = () => {
             try {
               const reportsWithUrls = await Promise.all(
                 values.reports.map(async (report) => {
+                  if (!report.reportFileUrl) {
+                    console.error("No file submitted:");
+                    return;
+                  }
                   const uploadedUrl = await uploadToCloudinary(
                     report.reportFileUrl
                   );
+                  console.log(uploadedUrl);
                   return {
                     ...report,
                     reportFileUrl: uploadedUrl,
@@ -74,7 +100,7 @@ const AddReportPage = () => {
 
               console.log("Final Payload:", finalPayload);
 
-              // Submit finalPayload to your backend here
+              mutate(finalPayload);
             } catch (err) {
               console.error("File upload failed:", err);
             }
