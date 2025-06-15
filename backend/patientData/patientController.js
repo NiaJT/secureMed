@@ -19,5 +19,34 @@ router.post(
 );
 router.get("/detail", isUser, getPatientDetails);
 router.put("/verify", isDoctor, verifyReports);
+router.put(
+  "/update",
+  isUser,
+  validateReqBody(patientValidationSchema),
+  async (req, res) => {
+    try {
+      const patientData = req.body;
+      const userId = req.loggedInUser;
+
+      const patientExists = await PatientTable.findOne({ user: userId });
+      if (!patientExists) {
+        return res.status(404).send({
+          message:
+            "Patient data doesn't exist. Try adding your medical Report.",
+        });
+      }
+      await PatientTable.findOneAndUpdate(
+        { user: userId },
+        { $set: { ...patientData } },
+        { new: true }
+      );
+
+      return res.status(200).send({ message: "Updated data successfully" });
+    } catch (error) {
+      console.error("Error adding patient data:", error);
+      return res.status(400).send({ message: "Invalid Operation" });
+    }
+  }
+);
 
 export { router as PatientController };
