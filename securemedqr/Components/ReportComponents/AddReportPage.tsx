@@ -97,11 +97,19 @@ const AddReportPage = () => {
                   return {
                     ...report,
                     reportFileUrl: uploadedUrl,
+                    accessLevel: report.accessLevel as
+                      | "doctor-patient"
+                      | "private"
+                      | "admin",
+                    verificationStatus: report.verificationStatus as
+                      | "pending"
+                      | "verified"
+                      | "rejected",
                   };
                 })
               );
 
-              const finalPayload = {
+              const finalPayload: Patient = {
                 ...values,
                 reports: reportsWithUrls.filter(
                   (report): report is NonNullable<typeof report> =>

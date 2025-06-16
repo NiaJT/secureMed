@@ -65,8 +65,8 @@ const UpdateReportPage = () => {
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
         <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
         <p className="text-red-500 text-lg text-center mb-4">
-  {error?.response?.data?.message || error?.message || "Something went wrong"}
-</p>
+          {error?.message || "Something went wrong"}
+        </p>
 
         <Link href="/" className="text-blue-600 hover:underline">
           Return to dashboard
@@ -83,7 +83,7 @@ const UpdateReportPage = () => {
       </div>
     );
   }
-  const patientData = data?.data?.patientDetails ;
+  const patientData = data?.data?.patientDetails;
   console.log(patientData);
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 m-4 rounded-3xl">
@@ -93,43 +93,30 @@ const UpdateReportPage = () => {
         </h1>
 
         <Formik
-          initialValues = {{
-  name: patientData?.name || "",
-  age: patientData?.age || 0,
-  gender: patientData?.gender || "male",
-  allergies: patientData?.allergies || [],
-  chronicDiseases: patientData?.chronicDiseases || [],
-  emergencyContact: {
-    name: patientData?.emergencyContact?.name || "",
-    phone: patientData?.emergencyContact?.phone || "",
-  },
-  doctor: patientData?.doctor || null,
-  reports:
-    patientData?.reports?.length > 0
-      ? patientData.reports.map((report) => ({
-          reportTitle: report.reportTitle || "",
-          reportDescription: report.reportDescription || "",
-          reportFileUrl: report.reportFileUrl || null,
-          uploadedAt: report.uploadedAt ? new Date(report.uploadedAt) : new Date(),
-          accessLevel: report.accessLevel || "doctor-patient",
-          verificationStatus: report.verificationStatus || "pending",
-          verifiedAt: report.verifiedAt ? new Date(report.verifiedAt) : null,
-          verificationRemarks: report.verificationRemarks || "",
-        }))
-      : [
-          {
-            reportTitle: "",
-            reportDescription: "",
-            reportFileUrl: null,
-            uploadedAt: new Date(),
-            accessLevel: "doctor-patient",
-            verificationStatus: "pending",
-            verifiedAt: null,
-            verificationRemarks: "",
-          },
-        ],
-}}
-
+          initialValues={{
+            name: patientData?.name || "",
+            age: patientData?.age || 0,
+            gender: patientData?.gender || "male",
+            allergies: patientData?.allergies || [],
+            chronicDiseases: patientData?.chronicDiseases || [],
+            emergencyContact: {
+              name: patientData?.emergencyContact?.name || "",
+              phone: patientData?.emergencyContact?.phone || "",
+            },
+            doctor: patientData?.doctor || null,
+            reports: [
+              {
+                reportTitle: "",
+                reportDescription: "",
+                reportFileUrl: null,
+                uploadedAt: new Date(),
+                accessLevel: "doctor-patient",
+                verificationStatus: "pending",
+                verifiedAt: null,
+                verificationRemarks: "",
+              },
+            ],
+          }}
           validationSchema={patientValidationSchema}
           onSubmit={async (values) => {
             try {
@@ -146,6 +133,14 @@ const UpdateReportPage = () => {
                   return {
                     ...report,
                     reportFileUrl: uploadedUrl,
+                    accessLevel: report.accessLevel as
+                      | "doctor-patient"
+                      | "private"
+                      | "admin",
+                    verificationStatus: report.verificationStatus as
+                      | "pending"
+                      | "verified"
+                      | "rejected",
                   };
                 })
               );
@@ -191,7 +186,7 @@ const UpdateReportPage = () => {
                     />
                     {touched.name && errors.name && (
                       <div className="text-red-500 text-xs mt-1">
-                        {errors.name}
+                        {errors.name as string}
                       </div>
                     )}
                   </div>
@@ -211,7 +206,7 @@ const UpdateReportPage = () => {
                     />
                     {touched.age && errors.age && (
                       <div className="text-red-500 text-xs mt-1">
-                        {errors.age}
+                        {errors.age as string}
                       </div>
                     )}
                   </div>
@@ -255,7 +250,7 @@ const UpdateReportPage = () => {
                     {touched.emergencyContact?.name &&
                       errors.emergencyContact?.name && (
                         <div className="text-red-500 text-xs mt-1">
-                          {errors.emergencyContact.name}
+                          {errors.emergencyContact.name as string}
                         </div>
                       )}
                   </div>
@@ -276,7 +271,7 @@ const UpdateReportPage = () => {
                     {touched.emergencyContact?.phone &&
                       errors.emergencyContact?.phone && (
                         <div className="text-red-500 text-xs mt-1">
-                          {errors.emergencyContact.phone}
+                          {errors.emergencyContact.phone as string}
                         </div>
                       )}
                   </div>
