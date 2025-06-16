@@ -24,6 +24,10 @@ router.get("/detail", isUser, getPatientDetails);
 router.put("/verify", isDoctor, verifyReports);
 router.put(
   "/update",
+  (req,res,next) => {
+    console.log("aayo yaha");
+    next();
+  },
   isUser,
   validateReqBody(updatePatientValidationSchema),
   async (req, res) => {

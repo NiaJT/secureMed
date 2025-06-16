@@ -1,16 +1,18 @@
 "use client";
+
 import { Formik, Field, FieldArray } from "formik";
 import { AlertTriangle, FilePlus, Link } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import dotenv from "dotenv";
 import { axiosInstance } from "@/lib/axios.instance";
 import toast from "react-hot-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { IError } from "@/interface/error.interface";
-import { Patient } from "@/interface/patientdata.interface";
 import { updatePatientValidationSchema } from "@/Schema/updatePateintValidationSchema";
+
 dotenv.config();
+
 const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
@@ -28,33 +30,40 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
 };
 
 const UpdateReportPage = () => {
+  const [isUploading, setIsUploading] = useState(false);
+
   const {
     isPending: isQueryPending,
     data,
     error,
   } = useQuery({
     queryKey: ["fetch-data"],
-    queryFn: () => {
-      return axiosInstance.get("/patient-data/detail");
-    },
+    queryFn: () => axiosInstance.get("/patient-data/detail"),
   });
+
   const { mutate, isPending: isUpdatePending } = useMutation({
     mutationKey: ["update-patient-data"],
-    mutationFn: async (values: Patient) => {
-      return await axiosInstance.post("/patient-data/update", values);
-    },
+    mutationFn: async (values) =>
+      await axiosInstance.put("/patient-data/update", values),
     onSuccess: (res) => {
       toast.success(res.data.message);
     },
     onError: (error: IError) => {
-      toast.success(error.response.data.message);
+      toast.error(error.response.data.message || "Update failed.");
     },
   });
-  if (isQueryPending) {
+
+  if (isQueryPending || isUploading || isUpdatePending) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        <p className="ml-4 text-gray-600">Loading patient data...</p>
+        <p className="ml-4 text-gray-600">
+          {isUploading
+            ? "Uploading files..."
+            : isQueryPending
+            ? "Loading patient data..."
+            : "Updating patient data..."}
+        </p>
       </div>
     );
   }
@@ -66,7 +75,6 @@ const UpdateReportPage = () => {
         <p className="text-red-500 text-lg text-center mb-4">
           {error?.message || "Something went wrong"}
         </p>
-
         <Link href="/" className="text-blue-600 hover:underline">
           Return to dashboard
         </Link>
@@ -74,16 +82,8 @@ const UpdateReportPage = () => {
     );
   }
 
-  if (isUpdatePending) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        <p className="ml-4 text-gray-600">Updating patient data...</p>
-      </div>
-    );
-  }
   const patientData = data?.data?.patientDetails;
-  console.log(patientData);
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 m-4 rounded-3xl">
       <div className="max-w-4xl mx-auto">
@@ -118,16 +118,19 @@ const UpdateReportPage = () => {
           }}
           validationSchema={updatePatientValidationSchema}
           onSubmit={async (values) => {
+            setIsUploading(true);
             try {
-              console.log("bruhhh");
               const reportsWithUrls = await Promise.all(
                 values.reports.map(async (report) => {
+                  if (!report.reportTitle && !report.reportFileUrl) {
+                    return null; // skip empty reports
+                  }
+
                   let uploadedUrl = "";
                   if (report.reportFileUrl) {
                     uploadedUrl = await uploadToCloudinary(
                       report.reportFileUrl
                     );
-                    console.log(uploadedUrl);
                   }
 
                   return {
@@ -147,17 +150,16 @@ const UpdateReportPage = () => {
 
               const finalPayload = {
                 ...values,
-                reports: reportsWithUrls.filter(
-                  (report): report is NonNullable<typeof report> =>
-                    report !== undefined
-                ),
+                reports: reportsWithUrls.filter(Boolean),
               };
 
               console.log("Final Payload:", finalPayload);
-
               mutate(finalPayload);
             } catch (err) {
-              console.error("File upload failed:", err);
+              console.error("Unexpected error in submission:", err);
+              toast.error("Something went wrong.");
+            } finally {
+              setIsUploading(false);
             }
           }}
         >
@@ -368,8 +370,9 @@ const UpdateReportPage = () => {
                 <button
                   type="submit"
                   className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition duration-300 cursor-pointer"
+                  disabled={isUploading || isUpdatePending}
                 >
-                  Submit Report
+                  {isUploading ? "Uploading..." : "Submit Report"}
                 </button>
               </div>
             </form>
