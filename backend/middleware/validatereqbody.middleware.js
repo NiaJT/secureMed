@@ -1,6 +1,7 @@
 const validateReqBody = (validationSchema) => {
   return async (req, res, next) => {
     try {
+      console.log("reached here");
       const validData = await validationSchema.validate(req.body);
       req.body = validData;
       next();

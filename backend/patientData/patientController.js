@@ -1,6 +1,9 @@
 import express from "express";
 import validateReqBody from "../middleware/validatereqbody.middleware.js";
-import { patientValidationSchema } from "./patient.validation.js";
+import {
+  patientValidationSchema,
+  updatePatientValidationSchema,
+} from "./patient.validation.js";
 
 import { isDoctor, isUser } from "../middleware/authentication.middleware.js";
 import {
@@ -22,7 +25,7 @@ router.put("/verify", isDoctor, verifyReports);
 router.put(
   "/update",
   isUser,
-  validateReqBody(patientValidationSchema),
+  validateReqBody(updatePatientValidationSchema),
   async (req, res) => {
     try {
       const patientData = req.body;

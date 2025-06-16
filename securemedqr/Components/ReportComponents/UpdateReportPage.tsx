@@ -1,6 +1,4 @@
 "use client";
-
-import { patientValidationSchema } from "@/Schema/patientValidationSchema";
 import { Formik, Field, FieldArray } from "formik";
 import { AlertTriangle, FilePlus, Link } from "lucide-react";
 import React from "react";
@@ -11,6 +9,7 @@ import toast from "react-hot-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { IError } from "@/interface/error.interface";
 import { Patient } from "@/interface/patientdata.interface";
+import { updatePatientValidationSchema } from "@/Schema/updatePateintValidationSchema";
 dotenv.config();
 const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
@@ -117,19 +116,20 @@ const UpdateReportPage = () => {
               },
             ],
           }}
-          validationSchema={patientValidationSchema}
+          validationSchema={updatePatientValidationSchema}
           onSubmit={async (values) => {
             try {
+              console.log("bruhhh");
               const reportsWithUrls = await Promise.all(
                 values.reports.map(async (report) => {
-                  if (!report.reportFileUrl) {
-                    console.error("No file submitted:");
-                    return;
+                  let uploadedUrl = "";
+                  if (report.reportFileUrl) {
+                    uploadedUrl = await uploadToCloudinary(
+                      report.reportFileUrl
+                    );
+                    console.log(uploadedUrl);
                   }
-                  const uploadedUrl = await uploadToCloudinary(
-                    report.reportFileUrl
-                  );
-                  console.log(uploadedUrl);
+
                   return {
                     ...report,
                     reportFileUrl: uploadedUrl,
