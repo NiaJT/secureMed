@@ -13,7 +13,7 @@ import {
   BarChart2,
 } from "lucide-react";
 
-const HomePage = () => {
+const PatientHomePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white mt-4 rounded">
       {/* Hero Section */}
@@ -270,7 +270,7 @@ const HomePage = () => {
                     <p className="text-gray-600 text-sm">{testimonial.role}</p>
                   </div>
                 </div>
-                <p className="text-gray-700 italic">"{testimonial.quote}"</p>
+                <p className="text-gray-700 italic">{testimonial.quote}</p>
               </div>
             ))}
           </div>
@@ -324,4 +324,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default PatientHomePage;
