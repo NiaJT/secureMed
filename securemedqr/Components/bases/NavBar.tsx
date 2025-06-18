@@ -1,52 +1,29 @@
 "use client";
-import {
-  Info,
-  FilePlus,
-  Phone,
-  Home,
-  Menu,
-  X,
-  User,
-  LogOut,
-  View,
-} from "lucide-react";
+import { Info, FilePlus, Phone, Home, User, LogOut, View } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Link from "next/link";
 import React, { useEffect, useState, useRef } from "react";
-import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
-
-const navLinks = [
-  { name: "Home", link: "/", icon: <Home className="w-5 h-5" /> },
-  { name: "About Us", link: "/about", icon: <Info className="w-5 h-5" /> },
-  {
-    name: "Add Medical Report",
-    link: "/add-report",
-    icon: <FilePlus className="w-5 h-5" />,
-  },
-  { name: "Contact Us", link: "/contact", icon: <Phone className="w-5 h-5" /> },
-  {
-    name: "My Report",
-    link: "/medical-data",
-    icon: <View className="w-5 h-5" />,
-  },
-];
+import { usePathname, useRouter } from "next/navigation";
 
 const NavBar = () => {
   const router = useRouter();
-  const [firstName, setFirstName] = useState<string>("");
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const pathname = usePathname();
-
   const profileRef = useRef<HTMLDivElement>(null);
 
+  const [firstName, setFirstName] = useState<string>("");
+  const [role, setRole] = useState<"doctor" | "patient" | null>(null);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
   useEffect(() => {
-    const name = localStorage.getItem("firstName");
-    if (name) setFirstName(name);
+    const storedName = localStorage.getItem("firstName");
+    const storedRole = localStorage.getItem("role");
+    if (storedName) setFirstName(storedName);
+    if (storedRole === "doctor" || storedRole === "patient") {
+      setRole(storedRole);
+    }
   }, []);
 
-  // Close profile dropdown when clicking outside of it
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -57,7 +34,6 @@ const NavBar = () => {
         setIsProfileOpen(false);
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -65,29 +41,74 @@ const NavBar = () => {
   }, [isProfileOpen]);
 
   const handleLogout = () => {
-    window.localStorage.clear();
+    localStorage.clear();
     router.replace("/login");
     setIsProfileOpen(false);
     setIsMobileOpen(false);
   };
 
+  // Common links
+  const commonLinks = [
+    { name: "Home", link: "/", icon: <Home className="w-5 h-5" /> },
+    { name: "About Us", link: "/about", icon: <Info className="w-5 h-5" /> },
+    {
+      name: "Contact Us",
+      link: "/contact",
+      icon: <Phone className="w-5 h-5" />,
+    },
+  ];
+
+  // Role-specific links
+  const patientLinks = [
+    {
+      name: "Add Medical Report",
+      link: "/add-report",
+      icon: <FilePlus className="w-5 h-5" />,
+    },
+    {
+      name: "My Report",
+      link: "/medical-data",
+      icon: <View className="w-5 h-5" />,
+    },
+  ];
+
+  const doctorLinks = [
+    {
+      name: "All Patients",
+      link: "/patients",
+      icon: <View className="w-5 h-5" />,
+    },
+    {
+      name: "Add Prescription",
+      link: "/add-prescription",
+      icon: <FilePlus className="w-5 h-5" />,
+    },
+  ];
+
+  const navLinks = [
+    ...commonLinks,
+    ...(role === "doctor"
+      ? doctorLinks
+      : role === "patient"
+      ? patientLinks
+      : []),
+  ];
+
   return (
     <header className="w-full bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg sticky top-0 z-50">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-3 md:py-4">
-          <div className="flex items-center">
-            <Link
-              href="/"
-              className="text-2xl sm:text-3xl font-bold text-white tracking-tight flex items-center"
-            >
-              <div className="bg-white/20 p-2 rounded-lg mr-3">
-                <div className="bg-blue-400 w-8 h-8 rounded-md flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">S</span>
-                </div>
+          <Link
+            href="/"
+            className="text-2xl sm:text-3xl font-bold text-white flex items-center"
+          >
+            <div className="bg-white/20 p-2 rounded-lg mr-3">
+              <div className="bg-blue-400 w-8 h-8 rounded-md flex items-center justify-center">
+                <span className="text-white font-bold text-xl">S</span>
               </div>
-              SecureMed
-            </Link>
-          </div>
+            </div>
+            SecureMed
+          </Link>
 
           <div className="hidden md:flex items-center space-x-1">
             <ul className="flex space-x-6 items-center text-white text-base font-medium">
@@ -171,24 +192,10 @@ const NavBar = () => {
                 </button>
               </div>
             )}
-
-            <button
-              className="md:hidden text-white ml-4"
-              onClick={() => {
-                setIsMobileOpen(!isMobileOpen);
-                setIsProfileOpen(false); // close profile dropdown when mobile menu toggles
-              }}
-              aria-label="Toggle menu"
-            >
-              {isMobileOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </button>
           </div>
         </div>
 
+        {/* Mobile Overlay */}
         <div
           className={`md:hidden fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${
             isMobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -196,16 +203,14 @@ const NavBar = () => {
           onClick={() => setIsMobileOpen(false)}
         />
 
+        {/* Mobile Drawer */}
         <div
-          className={`md:hidden fixed top-0 right-0 h-full w-80 max-w-full bg-blue-700 z-50 transform transition-transform duration-300 ${
+          className={`md:hidden fixed top-0 right-0 h-full w-80 bg-blue-700 z-50 transform transition-transform duration-300 ${
             isMobileOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
           <div className="p-5 border-b border-blue-600 flex items-center gap-3">
-            <Avatar
-              className="border-2 border-white"
-              onClick={() => setIsProfileOpen(false)}
-            >
+            <Avatar className="border-2 border-white">
               <AvatarImage src="/default-avatar.png" alt={firstName} />
               <AvatarFallback className="bg-blue-500">
                 {firstName ? (
@@ -219,29 +224,24 @@ const NavBar = () => {
 
           <ul className="py-4">
             {navLinks.map((item) => (
-              <li
-                key={item.name}
-                className="border-b border-blue-600 last:border-b-0"
-              >
+              <li key={item.name} className="border-b border-blue-600">
                 <Link
                   href={item.link}
                   onClick={() => setIsMobileOpen(false)}
-                  className={`flex items-center gap-4 p-5 text-white transition-colors hover:bg-blue-600 ${
+                  className={`flex items-center gap-4 p-5 text-white hover:bg-blue-600 ${
                     pathname === item.link
                       ? "bg-blue-600 font-semibold border-l-4 border-yellow-300"
                       : ""
                   }`}
                 >
-                  <span className="text-blue-300" title={item.name}>
-                    {item.icon}
-                  </span>
+                  <span className="text-blue-300">{item.icon}</span>
                   <span>{item.name}</span>
                 </Link>
               </li>
             ))}
             <li className="border-t border-blue-600 mt-4 pt-4 px-5">
               <button
-                className="flex items-center gap-4 w-full p-3 text-white bg-blue-800 rounded-lg hover:bg-blue-900 transition-colors"
+                className="flex items-center gap-4 w-full p-3 text-white bg-blue-800 rounded-lg hover:bg-blue-900"
                 onClick={handleLogout}
               >
                 <LogOut className="w-5 h-5" />
