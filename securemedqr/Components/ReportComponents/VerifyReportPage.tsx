@@ -54,7 +54,7 @@ const VerifyReportPage: React.FC = () => {
       action: "verify" | "reject";
       remarks: string;
     }) => {
-      await axiosInstance.post("/patient-data/verify-report", {
+      await axiosInstance.put("/patient-data/verify", {
         patientId,
         reportId,
         action,
