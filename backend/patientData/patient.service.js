@@ -42,36 +42,34 @@ export const getPatientDetails = async (req, res) => {
 };
 export const verifyReports = async (req, res) => {
   try {
-    const { patientId, reportId, verificationRemarks, status } = req.body;
+    const { patientId, reportId, action, remarks } = req.body;
 
-    if (!patientId || !reportId || !status) {
+    if (!patientId || !reportId || !action) {
       return res.status(400).send({ message: "Missing required fields." });
     }
 
-    if (!["verified", "rejected"].includes(status)) {
-      return res.status(400).send({ message: "Invalid verification status." });
+    if (!["verify", "reject"].includes(action)) {
+      return res.status(400).send({ message: "Invalid action." });
     }
 
     const patient = await PatientTable.findOne({ _id: patientId });
-
     if (!patient) {
       return res.status(404).send({ message: "Patient not found." });
     }
 
     const report = patient.reports.id(reportId);
-
     if (!report) {
       return res.status(404).send({ message: "Report not found." });
     }
 
-    // Update verification info
-    report.verificationStatus = status;
+    // Update verification
+    report.verificationStatus = action === "verify" ? "verified" : "rejected";
     report.verifiedAt = new Date();
-    report.verificationRemarks = verificationRemarks || "";
+    report.verificationRemarks = remarks || "";
 
     await patient.save();
 
-    return res.status(200).send({ message: "Report verified successfully." });
+    return res.status(200).send({ message: "Report updated successfully." });
   } catch (error) {
     console.error("Verification error:", error);
     return res.status(500).send({ message: "Internal server error." });
