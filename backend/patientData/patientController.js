@@ -58,15 +58,25 @@ router.put(
 
 router.post("/list", isDoctor, async (req, res) => {
   try {
-    const page = req.body.page;
-    const limit = req.body.limit;
+    const page = req.body.page || 1;
+    const limit = req.body.limit || 10;
     const skip = (page - 1) * limit;
 
-    // Correcting the aggregate query to properly use the aggregation stages
     const patientList = await PatientTable.aggregate([
+      {
+        $match: {
+          "reports.verificationStatus": "pending",
+        },
+      },
       { $skip: skip },
       { $limit: limit },
-      { $project: { _id: 1, user: 1, reports: 1 } },
+      {
+        $project: {
+          _id: 1,
+          user: 1,
+          reports: 1,
+        },
+      },
     ]);
 
     return res.status(200).send({
@@ -74,8 +84,8 @@ router.post("/list", isDoctor, async (req, res) => {
       patientList,
     });
   } catch (error) {
-    console.log(`error: ${error.message}`);
-    return res.status(505).send({ message: "Internal Server Error" });
+    console.error("error:", error.message);
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 });
 
