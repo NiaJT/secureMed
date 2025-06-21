@@ -88,5 +88,22 @@ router.post("/list", isDoctor, async (req, res) => {
     return res.status(500).send({ message: "Internal Server Error" });
   }
 });
-
+router.get("/getQr", isUser, async (req, res) => {
+  try {
+    const patientId = req.loggedInUser;
+    const qrData = await PatientTable.findOne(
+      { user: patientId },
+      { qrToken: 1 }
+    );
+    if (!qrData || !qrData.qrToken) {
+      return res.status(404).send({ message: "QR code not found" });
+    }
+    return res
+      .status(200)
+      .send({ message: "Loaded QR code successfully", qrCode: qrData.qrToken });
+  } catch (error) {
+    console.error("error:", error.message);
+    return res.status(500).send({ message: "Internal Server Error" });
+  }
+});
 export { router as PatientController };
