@@ -10,6 +10,8 @@ import {
   HeartPulse,
   AlertTriangle,
   View,
+  QrCode,
+  Pencil,
 } from "lucide-react";
 import { format } from "date-fns";
 import { axiosInstance } from "@/lib/axios.instance";
@@ -103,7 +105,6 @@ const ViewReportPage = () => {
     );
   }
 
-  // Safely get arrays for allergies and chronic diseases
   const allergies = safeArray(patientData.allergies);
   const chronicDiseases = safeArray(patientData.chronicDiseases);
   const reports = safeArray(patientData.reports);
@@ -344,16 +345,31 @@ const ViewReportPage = () => {
             : "N/A"}
         </div>
       </div>
-      <div className="flex justify-end">
-        <button
-          className="flex justify-center items-center bg-purple-500 p-3 rounded-xl text-white font-semibold cursor-pointer "
-          type="button"
-          onClick={() => {
-            router.push("/medical-data/edit");
-          }}
-        >
-          Edit Report
-        </button>
+      <div className="flex justify-between">
+        <div>
+          <button
+            className="flex justify-center items-center bg-blue-500 p-3 rounded-xl text-white font-semibold cursor-pointer gap-2"
+            type="button"
+            onClick={() => {
+              router.push("/medical-data/qr");
+            }}
+          >
+            <QrCode />
+            My Qr
+          </button>
+        </div>
+        <div>
+          <button
+            className="flex justify-center items-center bg-purple-500 p-3 rounded-xl text-white font-semibold cursor-pointer gap-2 "
+            type="button"
+            onClick={() => {
+              router.push("/medical-data/edit");
+            }}
+          >
+            <Pencil />
+            Edit Report
+          </button>
+        </div>
       </div>
     </div>
   );
