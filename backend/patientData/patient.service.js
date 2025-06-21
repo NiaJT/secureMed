@@ -1,3 +1,4 @@
+import { generateQRToken } from "../lib/generateQrToken.js";
 import PatientTable from "./patient.model.js";
 
 export const addPatientData = async (req, res) => {
@@ -66,6 +67,21 @@ export const verifyReports = async (req, res) => {
     report.verificationStatus = action === "verify" ? "verified" : "rejected";
     report.verifiedAt = new Date();
     report.verificationRemarks = remarks || "";
+
+    // Check if all reports are verified
+    const isVerified = patient.reports.every(
+      (report) => report.verificationStatus === "verified"
+    );
+
+    if (isVerified) {
+      // Only generate token if it doesn't already exist
+      if (!patient.qrToken) {
+        const qrToken = generateQRToken(patientId); // creates a signed JWT
+        patient.qrToken = qrToken;
+      }
+    } else {
+      patient.qrToken = null; // Remove QR if not all are verified
+    }
 
     await patient.save();
 

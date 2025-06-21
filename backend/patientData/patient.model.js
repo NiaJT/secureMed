@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { string } from "yup";
 
 const patientSchema = new mongoose.Schema({
   user: {
@@ -55,6 +56,7 @@ const patientSchema = new mongoose.Schema({
       verificationRemarks: String,
     },
   ],
+  qrToken: { type: String, default: null },
 });
 
 const PatientTable = mongoose.model("Patients", patientSchema);
