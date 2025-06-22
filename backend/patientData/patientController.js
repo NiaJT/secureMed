@@ -24,10 +24,7 @@ router.get("/detail", isUser, getPatientDetails);
 router.put("/verify", isDoctor, verifyReports);
 router.put(
   "/update",
-  (req, res, next) => {
-    console.log("aayo yaha");
-    next();
-  },
+
   isUser,
   validateReqBody(updatePatientValidationSchema),
   async (req, res) => {
@@ -93,14 +90,16 @@ router.get("/getQr", isUser, async (req, res) => {
     const patientId = req.loggedInUser;
     const qrData = await PatientTable.findOne(
       { user: patientId },
-      { qrToken: 1 }
+      { qrToken: 1, _id: 1, user: 1, verifiedAt: 1 }
     );
     if (!qrData || !qrData.qrToken) {
-      return res.status(404).send({ message: "QR code not found" });
+      return res
+        .status(200)
+        .send({ message: "Your Request has not been verified yet" });
     }
     return res
       .status(200)
-      .send({ message: "Loaded QR code successfully", qrCode: qrData.qrToken });
+      .send({ message: "Loaded QR code successfully", qrData });
   } catch (error) {
     console.error("error:", error.message);
     return res.status(500).send({ message: "Internal Server Error" });

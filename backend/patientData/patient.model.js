@@ -56,6 +56,7 @@ const patientSchema = new mongoose.Schema({
       verificationRemarks: String,
     },
   ],
+  verifiedAt: Date,
   qrToken: { type: String, default: null },
 });
 
