@@ -279,7 +279,82 @@ const UpdateReportPage = () => {
                   </div>
                 </div>
               </div>
-
+              {/* Allergies */}
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold text-gray-700 mb-4 pb-2 border-b">
+                  Allergies
+                </h2>
+                <FieldArray name="allergies">
+                  {({ push, remove }) => (
+                    <div className="space-y-4">
+                      {values.allergies.map((_, index: number) => (
+                        <div
+                          key={index}
+                          className="flex items-center space-x-4"
+                        >
+                          <Field
+                            name={`allergies.${index}`}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            placeholder="e.g. Penicillin"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => remove(index)}
+                            className="text-red-600 hover:text-red-800 text-sm"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => push("")}
+                        className="text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        + Add Allergy
+                      </button>
+                    </div>
+                  )}
+                </FieldArray>
+              </div>
+              {/* Chronic Diseases */}
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold text-gray-700 mb-4 pb-2 border-b">
+                  Chronic Diseases
+                </h2>
+                <FieldArray name="chronicDiseases">
+                  {({ push, remove }) => (
+                    <div className="space-y-4">
+                      {values.chronicDiseases.map((_, index: number) => (
+                        <div
+                          key={index}
+                          className="flex items-center space-x-4"
+                        >
+                          <Field
+                            name={`chronicDiseases.${index}`}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            placeholder="e.g. Diabetes"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => remove(index)}
+                            className="text-red-600 hover:text-red-800 text-sm"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => push("")}
+                        className="text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        + Add Chronic Disease
+                      </button>
+                    </div>
+                  )}
+                </FieldArray>
+              </div>
               {/* Reports */}
               <div className="mb-8">
                 <h2 className="text-xl font-semibold text-gray-700 mb-4 pb-2 border-b">
