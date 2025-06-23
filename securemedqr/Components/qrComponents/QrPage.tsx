@@ -1,12 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-   Download,
-  Share2,
-  Printer,
-  FileText,
-  Loader2,
-} from "lucide-react";
+import { Download, Share2, Printer, FileText, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import QRCode from "qrcode";
 import Image from "next/image";
@@ -267,12 +261,6 @@ const QrPage = () => {
                     <span className="text-gray-600">QR Code Expiry:</span>
                     <span className="font-medium">
                       {expiresAt || "Loading..."}
-                    </span>
-                  </div>
-                  <div className="flex justify-between border-b pb-2">
-                    <span className="text-gray-600">Token ID:</span>
-                    <span className="font-medium text-xs break-all text-right max-w-[60%]">
-                      {data?.qrData?.qrToken?.substring(0, 20) + "..." || "N/A"}
                     </span>
                   </div>
                 </div>
