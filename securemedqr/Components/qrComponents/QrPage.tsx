@@ -6,7 +6,7 @@ import QRCode from "qrcode";
 import Image from "next/image";
 import { axiosInstance } from "@/lib/axios.instance";
 import toast from "react-hot-toast";
-import { getTokenExpiry } from "@/utils/decodeQr";
+import calculateExpiryDate from "@/utils/gettokenExpiry";
 
 interface IQrData {
   qrToken: string;
@@ -51,13 +51,15 @@ const QrPage = () => {
           const imgUrl = await QRCode.toDataURL(data.qrData.qrToken);
           setQrImage(imgUrl);
 
-          // Decode expiry
-          const expiryDate = getTokenExpiry(data.qrData.qrToken);
-          if (expiryDate) {
+          // Calculate expiry date from verifiedAt + 90 days
+          if (data.qrData.verifiedAt) {
+            const expiryDate = calculateExpiryDate(data.qrData.verifiedAt);
             setExpiresAt(expiryDate);
+          } else {
+            setExpiresAt(null);
           }
 
-          // Fetch patient details (simulated)
+          // Fetch patient details (simulate or replace with real data)
           setPatientName("Sarah Johnson");
           setPatientDob("1985-03-15");
         } catch (err) {
@@ -65,7 +67,6 @@ const QrPage = () => {
           toast.error("Failed to generate QR code");
         }
       } else if (data?.message === "Your Request has not been verified yet") {
-        // Handle 404 case specifically
         toast.error("QR not available: Patient not verified");
       }
     };
