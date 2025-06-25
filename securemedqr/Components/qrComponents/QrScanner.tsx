@@ -1,67 +1,135 @@
 "use client";
-import { Html5QrcodeScanner, Html5Qrcode } from "html5-qrcode";
-import { useEffect, useRef } from "react";
+import { Html5Qrcode } from "html5-qrcode";
+import { useEffect, useRef, useState } from "react";
 
 export default function QRScanner() {
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const qrRegionId = "qr-reader";
+  const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
+  const [scanResult, setScanResult] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  // 🟩 Setup live camera scanner on mount
   useEffect(() => {
-    const scanner = new Html5QrcodeScanner("qr-reader", {
-      fps: 10,
-      qrbox: { width: 250, height: 250 },
-      verbose: true,
-    });
+    const runScanner = async () => {
+      try {
+        setLoading(true);
 
-    // Delay render by a tick
-    const id = setTimeout(() => {
-      scanner.render(
-        (decodedText) => alert("✅ Scanned: " + decodedText),
-        (error) => console.warn("Scan error:", error)
-      );
-    }, 100);
+        const cameras = await Html5Qrcode.getCameras();
+        if (!cameras.length) throw new Error("No cameras found");
+
+        // Prevent re-init if already scanning
+        if (html5QrCodeRef.current) return;
+
+        const qrCodeScanner = new Html5Qrcode(qrRegionId);
+        html5QrCodeRef.current = qrCodeScanner;
+
+        await qrCodeScanner.start(
+          cameras[0].id,
+          { fps: 10, qrbox: 250 },
+          (decodedText) => {
+            if (!scanResult) {
+              setScanResult(decodedText);
+              qrCodeScanner
+                .stop()
+                .then(() => qrCodeScanner.clear())
+                .catch(() => {});
+              html5QrCodeRef.current = null;
+              setLoading(false);
+            }
+          }
+        );
+      } catch (err) {
+        console.error("Scanner start error:", err);
+        setErrorMsg("Camera error: " + String(err));
+        setLoading(false);
+      }
+    };
+
+    if (!scanResult) {
+      runScanner();
+    }
 
     return () => {
-      clearTimeout(id);
-      scanner.clear().catch(() => {});
+      html5QrCodeRef.current?.stop().catch(() => {});
+      html5QrCodeRef.current?.clear().catch(() => {});
+      html5QrCodeRef.current = null;
     };
-  }, []);
+  }, [scanResult]);
 
-  // 🟦 Handle uploaded image file for QR decode
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const html5QrCode = new Html5Qrcode("qr-reader"); // reuse same container
+    if (!html5QrCodeRef.current) {
+      html5QrCodeRef.current = new Html5Qrcode(qrRegionId);
+    }
+
     try {
-      const result = await html5QrCode.scanFile(file, true); // ✅ verbose also works here
-      alert("📄 File Scan: " + result);
+      const result = await html5QrCodeRef.current.scanFile(file, true);
+      setScanResult(result);
+      setErrorMsg(null);
     } catch (err) {
-      alert("❌ Could not read QR from file.");
       console.error("File scan error:", err);
+      setErrorMsg("Could not read QR from file: " + String(err));
     }
   };
 
+  const handleRescan = () => {
+    setScanResult(null);
+    setErrorMsg(null);
+    html5QrCodeRef.current = null; // clear reference to ensure re-initialization
+  };
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold mb-2">Scan QR Code</h2>
+    <div className="max-w-md mx-auto p-4 space-y-4 font-sans">
+      <h2 className="text-2xl font-bold text-center">QR Code Scanner</h2>
 
-      {/* 🔴 Live scanner video */}
-      <div id="qr-reader" style={{ width: "300px", height: "300px" }} />
+      <div
+        id={qrRegionId}
+        style={{
+          width: "100%",
+          maxWidth: "320px",
+          aspectRatio: "1 / 1",
+          margin: "auto",
+          border: "2px solid #333",
+          borderRadius: "8px",
+        }}
+      />
 
-      {/* 🔵 File upload section */}
-      <div className="pt-4">
-        <label className="block mb-2 font-medium">
-          📁 Or upload a QR image
+      {loading && (
+        <p className="text-blue-600 text-center">Starting camera...</p>
+      )}
+
+      {scanResult && (
+        <div className="bg-green-100 p-3 rounded">
+          <strong>Scanned Result:</strong>
+          <p>{scanResult}</p>
+        </div>
+      )}
+
+      {errorMsg && <div className="text-red-600 font-semibold">{errorMsg}</div>}
+
+      {scanResult && (
+        <button
+          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded"
+          onClick={handleRescan}
+        >
+          Scan Again
+        </button>
+      )}
+
+      <div className="mt-4">
+        <label className="block font-medium mb-1" htmlFor="qr-upload">
+          Upload QR Code Image
         </label>
         <input
-          ref={fileInputRef}
+          id="qr-upload"
           type="file"
           accept="image/*"
           onChange={handleFileUpload}
-          className="border rounded p-2"
+          className="w-full p-2 border rounded"
         />
       </div>
     </div>
