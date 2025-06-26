@@ -105,4 +105,8 @@ router.get("/getQr", isUser, async (req, res) => {
     return res.status(500).send({ message: "Internal Server Error" });
   }
 });
+router.get("/qr/result/:token", isDoctor, async (req, res) => {
+  const encryptedToken = params.token;
+  console.log(encryptedToken);
+});
 export { router as PatientController };

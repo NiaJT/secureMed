@@ -76,7 +76,7 @@ export const verifyReports = async (req, res) => {
     if (isVerified) {
       // Only generate token if it doesn't already exist
       if (!patient.qrToken) {
-        const qrToken = await generateQRToken(patient); // creates a signed encrypted JWT
+        const qrToken = await generateQRToken(patient._id); // creates a signed encrypted JWT
         patient.qrToken = qrToken;
         patient.verifiedAt = new Date();
       }
