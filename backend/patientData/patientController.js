@@ -9,9 +9,11 @@ import { isDoctor, isUser } from "../middleware/authentication.middleware.js";
 import {
   addPatientData,
   getPatientDetails,
+  scannedPatientDetails,
   verifyReports,
 } from "./patient.service.js";
 import PatientTable from "./patient.model.js";
+import { decodeQRToken } from "../lib/decodeEncryptedToken.js";
 
 const router = express.Router();
 router.post(
@@ -105,8 +107,15 @@ router.get("/getQr", isUser, async (req, res) => {
     return res.status(500).send({ message: "Internal Server Error" });
   }
 });
-router.get("/qr/result/:token", isDoctor, async (req, res) => {
-  const encryptedToken = params.token;
-  console.log(encryptedToken);
-});
+router.post(
+  "/qr/result/:token",
+  isDoctor,
+  async (req, res, next) => {
+    const encryptedToken = req.params.token;
+    const payload = await decodeQRToken(encryptedToken);
+    req.id = payload.sub;
+    next();
+  },
+  scannedPatientDetails
+);
 export { router as PatientController };

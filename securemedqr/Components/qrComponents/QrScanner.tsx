@@ -1,8 +1,11 @@
 "use client";
 import { Html5Qrcode } from "html5-qrcode";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function QRScanner() {
+  const router=useRouter();
   const qrRegionId = "qr-reader";
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const [scanResult, setScanResult] = useState<string | null>(null);
@@ -12,7 +15,10 @@ export default function QRScanner() {
 
   useEffect(() => {
     let isMounted = true;
-
+    if (scanResult) {
+      router.replace(`/medical-data/scan-qr-result/${scanResult}`);
+      toast.success("Qr Scanned Successfully");
+    }
     const runScanner = async () => {
       try {
         setLoading(true);
@@ -154,9 +160,6 @@ export default function QRScanner() {
               <h3 className="text-green-800 font-medium">
                 Scanned Successfully!
               </h3>
-              <div className="mt-2 bg-white p-3 rounded-md break-words">
-                <code className="text-green-700 text-sm">{scanResult}</code>
-              </div>
             </div>
           </div>
         </div>

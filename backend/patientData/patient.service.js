@@ -41,6 +41,23 @@ export const getPatientDetails = async (req, res) => {
       .send({ message: "Couldn't get patient medical details" });
   }
 };
+export const scannedPatientDetails = async (req, res) => {
+  try {
+    const patientId = req.id;
+    const patientDetails = await PatientTable.findOne({ _id: patientId });
+
+    if (!patientDetails) {
+      return res.status(400).send({ message: "User has no medical records" });
+    }
+
+    return res.status(200).send({ message: "Success", patientDetails });
+  } catch (error) {
+    return res
+      .status(400)
+      .send({ message: "Couldn't get patient medical details" });
+  }
+};
+
 export const verifyReports = async (req, res) => {
   try {
     const { patientId, reportId, action, remarks } = req.body;
