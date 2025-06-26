@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function QRScanner() {
-  const router=useRouter();
+  const router = useRouter();
   const qrRegionId = "qr-reader";
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const [scanResult, setScanResult] = useState<string | null>(null);
@@ -79,7 +79,6 @@ export default function QRScanner() {
       }
     };
   }, [scanResult]);
-
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -88,13 +87,25 @@ export default function QRScanner() {
 
     try {
       setLoading(true);
-      if (!html5QrCodeRef.current) {
-        html5QrCodeRef.current = new Html5Qrcode(qrRegionId);
+
+      // Stop camera scan first if running
+      if (html5QrCodeRef.current?.isScanning) {
+        await html5QrCodeRef.current.stop();
+        await html5QrCodeRef.current.clear();
+        html5QrCodeRef.current = null;
+        setCameraActive(false);
       }
 
-      const result = await html5QrCodeRef.current.scanFile(file, true);
+      // Create a new scanner just for file scan
+      const qrCodeScanner = new Html5Qrcode(qrRegionId);
+      html5QrCodeRef.current = qrCodeScanner;
+
+      const result = await qrCodeScanner.scanFile(file, true);
       setScanResult(result);
       setErrorMsg(null);
+
+      await qrCodeScanner.clear(); // Clear scanner after file scan
+      html5QrCodeRef.current = null;
     } catch (err) {
       console.error("File scan error:", err);
       setErrorMsg("Could not read QR from file: " + String(err));

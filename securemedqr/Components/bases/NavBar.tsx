@@ -1,5 +1,15 @@
 "use client";
-import { Info, FilePlus, Phone, Home, User, LogOut, View } from "lucide-react";
+import {
+  Info,
+  FilePlus,
+  Phone,
+  Home,
+  User,
+  LogOut,
+  ClipboardCheck,
+  View,
+  QrCode,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Link from "next/link";
 import React, { useEffect, useState, useRef } from "react";
@@ -74,14 +84,14 @@ const NavBar = () => {
 
   const doctorLinks = [
     {
-      name: "All Patients",
-      link: "/patients",
-      icon: <View className="w-5 h-5" />,
+      name: "Verify Reports",
+      link: "/medical-data/verify-reports",
+      icon: <ClipboardCheck className="w-5 h-5" />,
     },
     {
-      name: "Add Prescription",
-      link: "/add-prescription",
-      icon: <FilePlus className="w-5 h-5" />,
+      name: "Scan Qr",
+      link: "/medical-data/scanqr",
+      icon: <QrCode className="w-5 h-5" />,
     },
   ];
 
