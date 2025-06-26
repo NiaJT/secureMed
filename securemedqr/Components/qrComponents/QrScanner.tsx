@@ -3,6 +3,13 @@ import { Html5Qrcode } from "html5-qrcode";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import {
+  Camera,
+  CheckCircle,
+  UploadCloud,
+  RefreshCcw,
+  AlertTriangle,
+} from "lucide-react";
 
 export default function QRScanner() {
   const router = useRouter();
@@ -15,10 +22,6 @@ export default function QRScanner() {
 
   useEffect(() => {
     let isMounted = true;
-    if (scanResult) {
-      router.replace(`/medical-data/scan-qr-result/${scanResult}`);
-      toast.success("Qr Scanned Successfully");
-    }
     const runScanner = async () => {
       try {
         setLoading(true);
@@ -46,6 +49,8 @@ export default function QRScanner() {
                 })
                 .catch(() => {});
               html5QrCodeRef.current = null;
+              toast.success("QR Scanned Successfully");
+              router.replace(`/medical-data/scan-qr-result/${decodedText}`);
             }
           },
           (errorMessage) => {
@@ -53,7 +58,6 @@ export default function QRScanner() {
           }
         );
 
-        // Camera started successfully
         if (isMounted) setLoading(false);
       } catch (err) {
         console.error("Scanner start error:", err);
@@ -65,9 +69,7 @@ export default function QRScanner() {
       }
     };
 
-    if (!scanResult) {
-      runScanner();
-    }
+    if (!scanResult) runScanner();
 
     return () => {
       isMounted = false;
@@ -79,6 +81,7 @@ export default function QRScanner() {
       }
     };
   }, [scanResult]);
+
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -88,7 +91,6 @@ export default function QRScanner() {
     try {
       setLoading(true);
 
-      // Stop camera scan first if running
       if (html5QrCodeRef.current?.isScanning) {
         await html5QrCodeRef.current.stop();
         await html5QrCodeRef.current.clear();
@@ -96,7 +98,6 @@ export default function QRScanner() {
         setCameraActive(false);
       }
 
-      // Create a new scanner just for file scan
       const qrCodeScanner = new Html5Qrcode(qrRegionId);
       html5QrCodeRef.current = qrCodeScanner;
 
@@ -104,7 +105,7 @@ export default function QRScanner() {
       setScanResult(result);
       setErrorMsg(null);
 
-      await qrCodeScanner.clear(); // Clear scanner after file scan
+      await qrCodeScanner.clear();
       html5QrCodeRef.current = null;
     } catch (err) {
       console.error("File scan error:", err);
@@ -127,7 +128,6 @@ export default function QRScanner() {
         <p className="text-gray-600 mt-2">Scan a QR code or upload an image</p>
       </div>
 
-      {/* Scanner Area */}
       <div className="mb-6">
         <div
           id={qrRegionId}
@@ -141,17 +141,14 @@ export default function QRScanner() {
           {!cameraActive && (
             <div className="text-center p-4 text-gray-500">
               <div className="mx-auto bg-gray-200 rounded-full p-3 w-14 h-14 flex items-center justify-center mb-3">
-                <CameraIcon />
+                <Camera className="w-6 h-6" />
               </div>
               <p>Camera inactive</p>
-              <p className="text-sm mt-1">
-                Click &quot;Scan Again&quot; to restart
-              </p>
+              <p className="text-sm mt-1">Click &quot;Scan Again&quot; to restart</p>
             </div>
           )}
         </div>
 
-        {/* Loading Indicator - Only shown when camera is starting */}
         {loading && (
           <div className="mt-4 flex flex-col items-center">
             <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -160,13 +157,10 @@ export default function QRScanner() {
         )}
       </div>
 
-      {/* Scan Result */}
       {scanResult && (
         <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 animate-fadeIn">
           <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <CheckCircleIcon />
-            </div>
+            <CheckCircle className="w-6 h-6 text-green-500" />
             <div className="ml-3">
               <h3 className="text-green-800 font-medium">
                 Scanned Successfully!
@@ -176,13 +170,10 @@ export default function QRScanner() {
         </div>
       )}
 
-      {/* Error Message */}
       {errorMsg && (
         <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 animate-fadeIn">
           <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <ErrorIcon />
-            </div>
+            <AlertTriangle className="w-6 h-6 text-red-500" />
             <div className="ml-3">
               <h3 className="text-red-800 font-medium">Scan Error</h3>
               <p className="text-red-700 mt-1 text-sm">{errorMsg}</p>
@@ -191,14 +182,13 @@ export default function QRScanner() {
         </div>
       )}
 
-      {/* Action Buttons */}
       <div className="flex flex-col gap-3">
         {scanResult ? (
           <button
             onClick={handleRescan}
             className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-200 flex items-center justify-center gap-2"
           >
-            <RefreshIcon />
+            <RefreshCcw className="w-5 h-5" />
             Scan Again
           </button>
         ) : (
@@ -212,7 +202,7 @@ export default function QRScanner() {
               disabled={loading}
             />
             <div className="py-3 px-4 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-lg transition duration-200 flex items-center justify-center gap-2">
-              <UploadIcon />
+              <UploadCloud className="w-5 h-5" />
               Upload QR Image
             </div>
           </div>
@@ -239,95 +229,3 @@ export default function QRScanner() {
     </div>
   );
 }
-
-// Icons for UI
-const CameraIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-6 w-6"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-    />
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-    />
-  </svg>
-);
-
-const CheckCircleIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-6 w-6 text-green-500"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-    />
-  </svg>
-);
-
-const ErrorIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-6 w-6 text-red-500"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-    />
-  </svg>
-);
-
-const RefreshIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-    />
-  </svg>
-);
-
-const UploadIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-    />
-  </svg>
-);

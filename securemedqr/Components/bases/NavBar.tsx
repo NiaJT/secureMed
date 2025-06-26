@@ -85,7 +85,7 @@ const NavBar = () => {
   const doctorLinks = [
     {
       name: "Verify Reports",
-      link: "/medical-data/verify-reports",
+      link: "/verify-reports",
       icon: <ClipboardCheck className="w-5 h-5" />,
     },
     {

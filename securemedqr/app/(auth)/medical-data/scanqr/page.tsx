@@ -1,8 +1,8 @@
-import QRScanner from "@/Components/qrComponents/QrScanner";
+import QrScanSection from "@/Components/qrComponents/QrScanSection";
 import React from "react";
 
 const page = () => {
-  return <QRScanner />;
+  return <QrScanSection />;
 };
 
 export default page;
