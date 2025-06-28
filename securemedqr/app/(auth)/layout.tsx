@@ -32,9 +32,10 @@ export default function RootLayout({
       >
         <ReactQueryClientProvider>
           <Toaster />
-          <AuthGuard />
-          <NavBar />
-          {children}
+          <AuthGuard>
+            <NavBar />
+            {children}
+          </AuthGuard>
         </ReactQueryClientProvider>
       </body>
     </html>
