@@ -34,7 +34,7 @@ export default function QRScanner() {
 
         const qrCodeScanner = new Html5Qrcode(qrRegionId);
         html5QrCodeRef.current = qrCodeScanner;
-
+        setLoading(false);
         await qrCodeScanner.start(
           cameras[0].id,
           { fps: 10, qrbox: 250 },
@@ -201,7 +201,6 @@ export default function QRScanner() {
               accept="image/*"
               onChange={handleFileUpload}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              disabled={loading}
             />
             <div className="py-3 px-4 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-lg transition duration-200 flex items-center justify-center gap-2">
               <UploadCloud className="w-5 h-5" />
@@ -211,8 +210,8 @@ export default function QRScanner() {
         )}
 
         <a
-          href={scanResult || "#"}
-          target="_blank"
+          href={`scan-qr-result/${scanResult}` || "#"}
+          target="_self"
           rel="noopener noreferrer"
           className={`py-3 px-4 text-center font-medium rounded-lg transition duration-200 ${
             scanResult
