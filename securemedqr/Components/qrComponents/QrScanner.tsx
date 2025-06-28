@@ -144,7 +144,9 @@ export default function QRScanner() {
                 <Camera className="w-6 h-6" />
               </div>
               <p>Camera inactive</p>
-              <p className="text-sm mt-1">Click &quot;Scan Again&quot; to restart</p>
+              <p className="text-sm mt-1">
+                Click &quot;Scan Again&quot; to restart
+              </p>
             </div>
           )}
         </div>
