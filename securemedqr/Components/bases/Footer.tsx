@@ -5,7 +5,10 @@ import Link from "next/link";
 
 export const Footer = () => {
   return (
-    <footer id='bottom' className="bg-gray-900 text-gray-200 py-10 mt-10 w-full">
+    <footer
+      id="bottom"
+      className="w-full flex flex-col bottom-0 bg-gray-900 text-gray-200 pt-10 mt-10"
+    >
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10">
         {/* Logo and Mission */}
         <div>
@@ -82,7 +85,8 @@ export const Footer = () => {
         </div>
       </div>
 
-      <div className="border-t border-gray-700 mt-10 pt-6 text-center text-sm text-gray-500">
+      {/* Bottom bar */}
+      <div className="border-t border-gray-700 mt-10 pt-6 text-center text-sm text-gray-500 px-6 pb-6">
         © {new Date().getFullYear()} SecureMed. All rights reserved.
       </div>
     </footer>
