@@ -63,7 +63,7 @@ const NavBar = () => {
     { name: "About Us", link: "/about", icon: <Info className="w-5 h-5" /> },
     {
       name: "Contact Us",
-      link: "/contact",
+      link: "#bottom",
       icon: <Phone className="w-5 h-5" />,
     },
   ];
