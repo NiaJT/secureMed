@@ -40,6 +40,7 @@ export const isDoctor = async (req, res, next) => {
     req.loggedInUser = user._id;
     next();
   } catch (error) {
+    console.log("error:",error);
     return res.status(404).send({ message: "Unauthorized: Invalid token" });
   }
 };

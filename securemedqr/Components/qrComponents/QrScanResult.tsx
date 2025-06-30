@@ -13,16 +13,13 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { axiosInstance } from "@/lib/axios.instance";
-import toast from "react-hot-toast";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 const QrScanResult = () => {
   const params = useParams();
   const token = params.token;
   const [patientData, setPatientData] = useState<Patient | null>(null);
-  const router = useRouter();
   const { isPending, data } = useQuery({
     queryKey: ["scan-result"],
     queryFn: async () => {
