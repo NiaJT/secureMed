@@ -80,7 +80,7 @@ export default function QRScanner() {
         setCameraActive(false);
       }
     };
-  }, [scanResult]);
+  }, [scanResult, router]);
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>

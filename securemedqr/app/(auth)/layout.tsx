@@ -3,9 +3,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import ReactQueryClientProvider from "@/provider/ReactQueryClientProvider";
 import { Toaster } from "react-hot-toast";
-import NavBar from "@/Components/bases/NavBar";
-import AuthGuard from "@/Components/guards/AuthGuard";
-import { Footer } from "@/Components/bases/Footer";
+import AuthGuard from "@/components/guards/AuthGuard";
+import NavBar from "@/components/bases/NavBar";
+import { Footer } from "@/components/bases/Footer";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

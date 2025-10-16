@@ -1,8 +1,8 @@
+import DecideHome from "@/components/bases/DecideHome";
 import React from "react";
-import DecideHome from "./../../Components/bases/DecideHome";
 
 const page = () => {
-  return <DecideHome />
+  return <DecideHome />;
 };
 
 export default page;

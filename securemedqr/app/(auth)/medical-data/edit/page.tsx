@@ -1,4 +1,4 @@
-import UpdateReportPage from "@/Components/ReportComponents/UpdateReportPage";
+import UpdateReportPage from "@/components/ReportComponents/UpdateReportPage";
 import React from "react";
 
 const page = () => {

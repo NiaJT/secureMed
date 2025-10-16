@@ -1,4 +1,4 @@
-import QrScanSection from "@/Components/qrComponents/QrScanSection";
+import QrScanSection from "@/components/qrComponents/QrScanSection";
 import React from "react";
 
 const page = () => {

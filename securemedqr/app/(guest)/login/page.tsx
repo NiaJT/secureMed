@@ -1,10 +1,9 @@
-import LoginPage from "@/Components/guestForms/LoginForm";
-import React from "react";
+import LoginForm from "@/components/guestForms/LoginForm";
 
 const page = () => {
   return (
     <>
-      <LoginPage />
+      <LoginForm />
     </>
   );
 };

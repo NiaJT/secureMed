@@ -1,5 +1,5 @@
-import QrScanResult from "@/Components/qrComponents/QrScanResult";
-import react from "react";
+import QrScanResult from "@/components/qrComponents/QrScanResult";
+
 const page = () => {
   return <QrScanResult />;
 };

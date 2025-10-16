@@ -10,48 +10,31 @@ import {
   HeartPulse,
   AlertTriangle,
   View,
-  QrCode,
-  Pencil,
 } from "lucide-react";
 import { format } from "date-fns";
 import { axiosInstance } from "@/lib/axios.instance";
-import toast from "react-hot-toast";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-
-const ViewReportPage = () => {
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+const QrScanResult = () => {
+  const params = useParams();
+  const token = params.token;
   const [patientData, setPatientData] = useState<Patient | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const { isPending, data } = useQuery({
+    queryKey: ["scan-result"],
+    queryFn: async () => {
+      const response = await axiosInstance.post(
+        `/patient-data/qr/result/${token}`
+      );
+      console.log(response);
+      return response;
+    },
+  });
   useEffect(() => {
-    const fetchPatientData = async () => {
-      try {
-        const accessToken = window.localStorage.getItem("accessToken");
-        console.log(accessToken);
-        setIsLoading(true);
-        const response = await axiosInstance.get("/patient-data/detail", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Cache-Control": "no-cache",
-            Pragma: "no-cache",
-            "If-Modified-Since": "0",
-          },
-        });
-
-        setPatientData(response.data.patientDetails);
-      } catch (err) {
-        console.error("Error fetching patient data:", err);
-        setError("Failed to load patient data. Please try again.");
-        toast.error("Failed to load patient data");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchPatientData();
-  }, []);
-
+    if (data) {
+      setPatientData(data?.data?.patientDetails);
+    }
+  }, [data]);
   const getStatusColor = (status: string) => {
     switch (status) {
       case "verified":
@@ -66,27 +49,15 @@ const ViewReportPage = () => {
   };
 
   // Safe array accessor for potentially undefined/null values
-  const safeArray = (arr: any[] | null | undefined) => {
+  const safeArray = (arr: unknown | null | undefined) => {
     return Array.isArray(arr) ? arr : [];
   };
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         <p className="ml-4 text-gray-600">Loading patient data...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-        <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
-        <p className="text-red-500 text-lg text-center mb-4">{error}</p>
-        <Link href="/" className="text-blue-600 hover:underline">
-          Return to dashboard
-        </Link>
       </div>
     );
   }
@@ -108,7 +79,6 @@ const ViewReportPage = () => {
   const allergies = safeArray(patientData.allergies);
   const chronicDiseases = safeArray(patientData.chronicDiseases);
   const reports = safeArray(patientData.reports);
-
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 m-4 rounded-3xl">
       <div className="max-w-4xl mx-auto">
@@ -345,34 +315,7 @@ const ViewReportPage = () => {
             : "N/A"}
         </div>
       </div>
-      <div className="flex justify-between">
-        <div>
-          <button
-            className="flex justify-center items-center bg-blue-500 p-3 rounded-xl text-white font-semibold cursor-pointer gap-2"
-            type="button"
-            onClick={() => {
-              router.push("/medical-data/qr");
-            }}
-          >
-            <QrCode />
-            My Qr
-          </button>
-        </div>
-        <div>
-          <button
-            className="flex justify-center items-center bg-purple-500 p-3 rounded-xl text-white font-semibold cursor-pointer gap-2 "
-            type="button"
-            onClick={() => {
-              router.push("/medical-data/edit");
-            }}
-          >
-            <Pencil />
-            Edit Report
-          </button>
-        </div>
-      </div>
     </div>
   );
 };
-
-export default ViewReportPage;
+export default QrScanResult;

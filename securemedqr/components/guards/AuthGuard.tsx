@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import toast from "react-hot-toast";
 const AuthGuard = ({
   children,
 }: Readonly<{
@@ -26,9 +27,9 @@ const AuthGuard = ({
         router.replace("/login");
         window.localStorage.clear();
       }
-      console.log(session,date);
+      console.log(session, date);
     }
-    
+
     setIsChecking(false);
   }, [router]);
   if (isChecking) {

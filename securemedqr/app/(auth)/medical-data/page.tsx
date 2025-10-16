@@ -1,4 +1,4 @@
-import ViewReportPage from "@/Components/ReportComponents/ViewReportPage";
+import ViewReportPage from "@/components/ReportComponents/ViewReportPage";
 import React from "react";
 
 const page = () => {

@@ -1,8 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import QRScanner from "./QrScanner";
 import toast from "react-hot-toast";
+import QRScanner from "./QrScanner";
 
 const QrScanSection = () => {
   const [role, setRole] = useState<string | null>(null);
@@ -16,14 +16,14 @@ const QrScanSection = () => {
       toast.error("Unauthorized");
       router.replace("/");
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (role && role !== "doctor") {
       toast.error("Unauthorized");
       router.replace("/");
     }
-  }, [role]);
+  }, [role, router]);
 
   if (role !== "doctor") {
     return null; // or loading spinner if you want

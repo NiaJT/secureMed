@@ -3,13 +3,14 @@
 import React from "react";
 import { Formik } from "formik";
 import { RegisterSchema } from "@/Schema/userValidationSchema";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+
 import { useMutation } from "@tanstack/react-query";
 import { axiosInstance } from "@/lib/axios.instance";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { IError } from "@/interface/error.interface";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 interface IRegisterForm {
   email: string;

@@ -10,8 +10,22 @@ import toast from "react-hot-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { IError } from "@/interface/error.interface";
 import { updatePatientValidationSchema } from "@/Schema/updatePateintValidationSchema";
+import { Report, ReportFormValues } from "@/interface/patientdata.interface";
 
 dotenv.config();
+interface PatientDataUpdate {
+  name: string;
+  age: number;
+  gender: string;
+  allergies: string[];
+  chronicDiseases: string[];
+  emergencyContact: {
+    name: string;
+    phone: string;
+  };
+  doctor: unknown;
+  reports: Report[]; // final type to send to backend
+}
 
 const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
@@ -43,7 +57,7 @@ const UpdateReportPage = () => {
 
   const { mutate, isPending: isUpdatePending } = useMutation({
     mutationKey: ["update-patient-data"],
-    mutationFn: async (values) =>
+    mutationFn: async (values: PatientDataUpdate) =>
       await axiosInstance.put("/patient-data/update", values),
     onSuccess: (res) => {
       toast.success(res.data.message);
@@ -91,7 +105,16 @@ const UpdateReportPage = () => {
           Add Patient Report
         </h1>
 
-        <Formik
+        <Formik<{
+          name: string;
+          age: number;
+          gender: string;
+          allergies: string[];
+          chronicDiseases: string[];
+          emergencyContact: { name: string; phone: string };
+          doctor: unknown;
+          reports: ReportFormValues[];
+        }>
           initialValues={{
             name: patientData?.name || "",
             age: patientData?.age || 0,
@@ -120,43 +143,52 @@ const UpdateReportPage = () => {
           onSubmit={async (values) => {
             setIsUploading(true);
             try {
+              // Upload each file if needed
               const reportsWithUrls = await Promise.all(
                 values.reports.map(async (report) => {
                   if (!report.reportTitle && !report.reportFileUrl) {
-                    return null; // skip empty reports
+                    return null; // skip empty
                   }
 
                   let uploadedUrl = "";
-                  if (report.reportFileUrl) {
+                  if (report.reportFileUrl instanceof File) {
                     uploadedUrl = await uploadToCloudinary(
                       report.reportFileUrl
                     );
+                  } else if (typeof report.reportFileUrl === "string") {
+                    uploadedUrl = report.reportFileUrl; // already uploaded
                   }
 
-                  return {
-                    ...report,
+                  // return backend-compatible type
+                  const formatted: Report = {
+                    reportTitle: report.reportTitle,
+                    reportDescription: report.reportDescription || "",
                     reportFileUrl: uploadedUrl,
-                    accessLevel: report.accessLevel as
-                      | "doctor-patient"
-                      | "private"
-                      | "admin",
-                    verificationStatus: report.verificationStatus as
-                      | "pending"
-                      | "verified"
-                      | "rejected",
+                    uploadedAt: report.uploadedAt,
+                    accessLevel: report.accessLevel,
+                    verificationStatus: report.verificationStatus,
+                    verifiedAt: report.verifiedAt,
+                    verificationRemarks: report.verificationRemarks || "",
                   };
+
+                  return formatted;
                 })
               );
 
-              const finalPayload = {
+              // Remove null reports
+              const cleanReports = reportsWithUrls.filter(
+                (r): r is Report => r !== null
+              );
+
+              const finalPayload: PatientDataUpdate = {
                 ...values,
-                reports: reportsWithUrls.filter(Boolean),
+                doctor: data?.data?.patientDetails.doctor,
+                reports: cleanReports,
               };
 
-              console.log("Final Payload:", finalPayload);
               mutate(finalPayload);
             } catch (err) {
-              console.error("Unexpected error in submission:", err);
+              console.error("Unexpected error:", err);
               toast.error("Something went wrong.");
             } finally {
               setIsUploading(false);
@@ -287,7 +319,7 @@ const UpdateReportPage = () => {
                 <FieldArray name="allergies">
                   {({ push, remove }) => (
                     <div className="space-y-4">
-                      {values.allergies.map((_, index: number) => (
+                      {values.allergies.map((_: unknown, index: number) => (
                         <div
                           key={index}
                           className="flex items-center space-x-4"
@@ -325,25 +357,27 @@ const UpdateReportPage = () => {
                 <FieldArray name="chronicDiseases">
                   {({ push, remove }) => (
                     <div className="space-y-4">
-                      {values.chronicDiseases.map((_, index: number) => (
-                        <div
-                          key={index}
-                          className="flex items-center space-x-4"
-                        >
-                          <Field
-                            name={`chronicDiseases.${index}`}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            placeholder="e.g. Diabetes"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => remove(index)}
-                            className="text-red-600 hover:text-red-800 text-sm"
+                      {values.chronicDiseases.map(
+                        (_: unknown, index: number) => (
+                          <div
+                            key={index}
+                            className="flex items-center space-x-4"
                           >
-                            Remove
-                          </button>
-                        </div>
-                      ))}
+                            <Field
+                              name={`chronicDiseases.${index}`}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              placeholder="e.g. Diabetes"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => remove(index)}
+                              className="text-red-600 hover:text-red-800 text-sm"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        )
+                      )}
                       <button
                         type="button"
                         onClick={() => push("")}

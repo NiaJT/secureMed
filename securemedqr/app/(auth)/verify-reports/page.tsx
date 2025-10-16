@@ -1,4 +1,4 @@
-import VerifyReportPage from "@/Components/ReportComponents/VerifyReportPage";
+import VerifyReportPage from "@/components/ReportComponents/VerifyReportPage";
 import React from "react";
 
 const page = () => {
