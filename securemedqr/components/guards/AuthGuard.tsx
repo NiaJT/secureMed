@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import toast from "react-hot-toast";
-const AuthGuard = ({
+export const AuthGuard = ({
   children,
 }: Readonly<{
   children: React.ReactNode;

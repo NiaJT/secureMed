@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const GuestGuard = ({
+export const GuestGuard = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
